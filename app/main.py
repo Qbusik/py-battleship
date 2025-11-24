@@ -12,8 +12,6 @@ class Deck:
 
 
 class Ship:
-    ships = []
-
     def __init__(
             self,
             start: tuple,
@@ -23,13 +21,12 @@ class Ship:
         self.is_drowned = is_drowned
         if start == end:
             self.decks.append(Deck(start[0], start[1]))
-        if start[0] < end[0]:
+        elif start[0] < end[0]:
             for i in range(start[0], end[0] + 1):
                 self.decks.append(Deck(i, start[1]))
-        if start[1] < end[1]:
+        else:
             for i in range(start[1], end[1] + 1):
                 self.decks.append(Deck(start[0], i))
-        self.ships.append(self)
 
     def get_deck(self, row: int, column: int) -> Deck | None:
         for deck in self.decks:
@@ -73,25 +70,39 @@ class Battleship:
             else:
                 return "Hit!"
 
+    def print_field(self) -> None:
+        print("\nBATTLESHIP:\n")
+        for row in range(0, 10):
+            row_to_print = ""
+            for column in range(0, 10):
+                if (row, column) in self.field.keys():
+                    ship = self.field[(row, column)]
+                    if ship.is_drowned:
+                        row_to_print += " x "
+                        continue
+                    if not ship.is_drowned:
+                        deck = ship.get_deck(row, column)
+                        if deck.is_alive:
+                            row_to_print += " □ "
+                            continue
+                        if not deck.is_alive:
+                            row_to_print += " * "
+                            continue
+                row_to_print += " ~ "
+            print(row_to_print)
 
-def print_field(battleship: Battleship) -> None:
-    print("\nBATTLESHIP:\n")
-    list_of_decks = []
-    hit_decks = []
-    for ship in battleship.field.values():
-        for deck in ship.decks:
-            if deck.is_alive:
-                list_of_decks.append((deck.row, deck.column))
-            if not deck.is_alive:
-                hit_decks.append((deck.row, deck.column))
-    for row in range(0, 10):
-        row_to_print = ""
-        for column in range(0, 10):
-            if (row, column) in hit_decks:
-                row_to_print += " X "
-                continue
-            if (row, column) in list_of_decks:
-                row_to_print += " □ "
-                continue
-            row_to_print += " - "
-        print(row_to_print)
+
+battle_ship = Battleship(
+    ships=[
+        ((0, 0), (0, 3)),
+        ((0, 5), (0, 6)),
+        ((0, 8), (0, 9)),
+        ((2, 0), (4, 0)),
+        ((2, 4), (2, 6)),
+        ((2, 8), (2, 9)),
+        ((9, 9), (9, 9)),
+        ((7, 7), (7, 7)),
+        ((7, 9), (7, 9)),
+        ((9, 7), (9, 7)),
+    ]
+)
