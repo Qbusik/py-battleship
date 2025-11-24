@@ -24,8 +24,14 @@ class Ship:
         elif start[0] < end[0]:
             for i in range(start[0], end[0] + 1):
                 self.decks.append(Deck(i, start[1]))
-        else:
+        elif start[0] > end[0]:
+            for i in range(start[0], end[0] - 1, -1):
+                self.decks.append(Deck(i, start[1]))
+        elif start[1] < end[1]:
             for i in range(start[1], end[1] + 1):
+                self.decks.append(Deck(start[0], i))
+        else:
+            for i in range(start[1], end[1] - 1, -1):
                 self.decks.append(Deck(start[0], i))
 
     def get_deck(self, row: int, column: int) -> Deck | None:
@@ -58,17 +64,17 @@ class Battleship:
             new_ship = Ship(ship[0], ship[1])
             for deck in new_ship.get_ship_decks():
                 self.field.update({deck: new_ship})
+        if not self._validate_field():
+            print("Wrong ships provided!!!")
 
     def fire(self, location: tuple) -> str:
         if location not in self.field.keys():
             return "Miss!"
-        else:
-            ship = self.field[location]
-            ship.fire(location[0], location[1])
-            if ship.is_drowned:
-                return "Sunk!"
-            else:
-                return "Hit!"
+        ship = self.field[location]
+        ship.fire(location[0], location[1])
+        if ship.is_drowned:
+            return "Sunk!"
+        return "Hit!"
 
     def print_field(self) -> None:
         print("\nBATTLESHIP:\n")
@@ -90,3 +96,30 @@ class Battleship:
                             continue
                 row_to_print += " ~ "
             print(row_to_print)
+
+    def _validate_field(self) -> bool:
+        ships = set()
+        one_ships = 4
+        two_ships = 3
+        three_ships = 2
+        four_ships = 1
+        for ship in self.field.values():
+            ships.add(ship)
+            if len(ship.get_ship_decks()) == 1:
+                one_ships -= 1
+            if len(ship.get_ship_decks()) == 2:
+                two_ships -= 1
+            if len(ship.get_ship_decks()) == 3:
+                three_ships -= 1
+            if len(ship.get_ship_decks()) == 4:
+                four_ships -= 1
+        if len(ships) != 10:
+            return False
+        if (
+                one_ships != 0
+                and two_ships != 0
+                and three_ships != 0
+                and four_ships != 0
+        ):
+            return False
+        return True
